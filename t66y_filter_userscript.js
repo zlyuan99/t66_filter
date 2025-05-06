@@ -10,8 +10,8 @@
 // @grant        GM_registerMenuCommand
 // @license      Apache License 2.0
 // @run-at       document-start
-// @downloadURL https://update.sleazyfork.org/scripts/487491/t66y%20cleaner.user.js
-// @updateURL https://update.sleazyfork.org/scripts/487491/t66y%20cleaner.meta.js
+// @downloadURL https://raw.githubusercontent.com/zlyuan99/t66_filter/main/t66y_filter_userscript.js
+// @updateURL https://raw.githubusercontent.com/zlyuan99/t66_filter/main/t66y_filter_userscript.js
 // ==/UserScript==
 
 (function() {
