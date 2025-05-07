@@ -20,15 +20,13 @@
     // 广告屏蔽功能（在脚本开始时就执行）
     function blockAds() {
         // 拦截全局广告函数
-        const adFunctions = ['spinit', 'spinit2', 'r9aeadS', '_pop', 'popunder', 'ExoLoader', 'ExoVideoSlider', 'show_popup'];
+        const adFunctions = ['spinit', 'spinit2', '_pop', 'popunder', 'ExoLoader', 'ExoVideoSlider', 'show_popup'];
         adFunctions.forEach(func => {
-            if (func !== 'r9aeadS') {
-                window[func] = function() { console.log(`已阻止广告函数 ${func}`); };
-                Object.defineProperty(window, func, {
-                    configurable: false,
-                    writable: false
-                });
-            }
+            window[func] = function() { console.log(`已阻止广告函数 ${func}`); };
+            Object.defineProperty(window, func, {
+                configurable: false,
+                writable: false
+            });
         });
 
         // 添加CSS规则屏蔽广告容器
@@ -107,8 +105,41 @@
         // 重写r9aeadS函数，防止其影响正常内容显示
         window.r9aeadS = function() {
             console.log('已阻止广告检测');
+            // 保持原有的广告检测元素可见
+            const adElements = document.querySelectorAll('.sptable_do_not_remove td, .tips');
+            adElements.forEach(el => {
+                if (el) {
+                    el.style.setProperty('display', 'block', 'important');
+                    el.style.setProperty('visibility', 'visible', 'important');
+                    el.style.setProperty('height', 'auto', 'important');
+                }
+            });
             loadImages();
+            // 恢复原始内容显示
+            const tpcContent = document.querySelector('.tpc_content');
+            if (tpcContent) {
+                const originalContent = tpcContent.innerHTML;
+                if (originalContent.includes('去广告插件屏蔽')) {
+                    // 获取原始内容的备份
+                    const backupContent = document.querySelector('.tpc_content_backup');
+                    if (backupContent) {
+                        tpcContent.innerHTML = backupContent.innerHTML;
+                    }
+                }
+            }
         };
+
+        // 创建一个隐藏的备份元素来存储原始内容
+        document.addEventListener('DOMContentLoaded', () => {
+            const tpcContent = document.querySelector('.tpc_content');
+            if (tpcContent) {
+                const backup = document.createElement('div');
+                backup.className = 'tpc_content_backup';
+                backup.style.display = 'none';
+                backup.innerHTML = tpcContent.innerHTML;
+                tpcContent.parentNode.insertBefore(backup, tpcContent.nextSibling);
+            }
+        });
 
         // 确保图片加载
         document.addEventListener('DOMContentLoaded', loadImages);
