@@ -105,22 +105,44 @@
         // 重写r9aeadS函数，防止其影响正常内容显示
         window.r9aeadS = function() {
             console.log('已阻止广告检测');
-            // 保持原有的广告检测元素可见
-            const adElements = document.querySelectorAll('.sptable_do_not_remove td, .tips');
-            adElements.forEach(el => {
-                if (el) {
-                    el.style.setProperty('display', 'block', 'important');
-                    el.style.setProperty('visibility', 'visible', 'important');
-                    el.style.setProperty('height', 'auto', 'important');
+            
+            // 创建一个伪造的jQuery选择器结果
+            const fakeJQueryResult = {
+                css: function() { return null; }, // 返回null表示未设置这些CSS属性
+                html: function() { return this; }
+            };
+            
+            // 伪造jQuery选择器
+            const originalJQuery = window.$;
+            if (originalJQuery) {
+                window.$ = function(selector) {
+                    if (selector === '.sptable_do_not_remove td' || 
+                        selector === '.tips' || 
+                        selector === '.tpc_content:eq(0)') {
+                        return fakeJQueryResult;
+                    }
+                    return originalJQuery(selector);
+                };
+            }
+            
+            // 阻止setTimeout的设置
+            const originalSetTimeout = window.setTimeout;
+            window.setTimeout = function(fn, delay) {
+                if (delay === 1006 || delay === 10006) {
+                    console.log('已阻止广告检测延时函数');
+                    return;
                 }
-            });
+                return originalSetTimeout(fn, delay);
+            };
+            
+            // 处理图片加载
             loadImages();
+            
             // 恢复原始内容显示
             const tpcContent = document.querySelector('.tpc_content');
             if (tpcContent) {
                 const originalContent = tpcContent.innerHTML;
                 if (originalContent.includes('去广告插件屏蔽')) {
-                    // 获取原始内容的备份
                     const backupContent = document.querySelector('.tpc_content_backup');
                     if (backupContent) {
                         tpcContent.innerHTML = backupContent.innerHTML;
